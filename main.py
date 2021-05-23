@@ -10,10 +10,12 @@ from sklearn.metrics import accuracy_score
 
 data = pd.read_csv("data/data.csv", sep=';')
 
-for column in data.columns:
+print(data.dtypes)
+
+'''for column in data.columns:
     if data[column].dtype != np.float64 or data[column].dtype != np.int64:
         data[column] = data[column].astype('category')
-        data[column] = data[column].cat.codes
+        data[column] = data[column].cat.codes'''
 
 classifieres_names = ['kNN',
                       'SVM',
@@ -27,17 +29,20 @@ classifieres = [
 ]
 
 
-target = data['Obciążenie']
-data_features = data.drop(['Obciążenie'], axis='columns')
+target = data['Ugięcia']
+data_features = data.drop(['Ugięcia'], axis='columns')
 
 print(target)
 
 max_abs_scaler = MaxAbsScaler()
 
 data_features_scaled = max_abs_scaler.fit_transform(data_features)
+#target_scaled = max_abs_scaler.transform(target)
 
 data_features_scaled = pd.DataFrame(
     data_features_scaled, columns=data_features.columns)
+
+
 
 
 data_train_X, data_test_X, data_train_Y, data_test_Y = train_test_split(
