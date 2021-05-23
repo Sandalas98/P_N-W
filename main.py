@@ -64,4 +64,5 @@ for hidden_activation in hidden_activations:
             print('\t\tloss function: '+ loss)
             print('\t\t\t MSE: ' + str(mse))
 
+print('BEST PARAMETERS:')
 print(best_nn, ",", best)
