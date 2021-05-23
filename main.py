@@ -15,14 +15,22 @@ for column in data.columns:
         data[column] = data[column].astype('category')
         data[column] = data[column].cat.codes
 
-classifieres_names = ['kNN', 'SVM']
+classifieres_names = ['kNN',
+                      'SVM',
+                      # 
+                      ]
 classifieres = [
     KNeighborsClassifier(5),
-    SVC()]
+    SVC(gamma='auto'),
+    # https://machinelearningmastery.com/tutorial-first-neural-network-python-keras/
+    # prosty artykuł jak dodać sieć neuronową
+]
 
 
 target = data['Obciążenie']
 data_features = data.drop(['Obciążenie'], axis='columns')
+
+print(target)
 
 max_abs_scaler = MaxAbsScaler()
 
@@ -36,16 +44,8 @@ data_train_X, data_test_X, data_train_Y, data_test_Y = train_test_split(
     data_features_scaled, target, test_size=0.2, random_state=71)
 
 
-clf = classifieres[0]
-res = clf.fit(data_train_X, data_train_Y)
-predicted = clf.predict(data_test_X)
-
-print(predicted)
-print(data_test_Y)
-
-acc = accuracy_score(data_test_Y, predicted)
-print(acc)
-
-#for classifier, classifier_name in classifieres, classifieres_names:
-    #print(classifieres_names[classifier_name])
-    #classifieres[classifier].fit(data_train_X, data_train_Y)
+for i in range(0, len(classifieres)):
+    print(classifieres_names[i])
+    classifieres[i].fit(data_train_X, data_train_Y)
+    predictions = classifieres[i].predict(data_test_X)
+    acc = accuracy_score(data_test_Y, predictions)
