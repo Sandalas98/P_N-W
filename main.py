@@ -1,56 +1,64 @@
-import numpy as np
-import pandas as pd
-import zipfile
-from sklearn.preprocessing import MaxAbsScaler
-from sklearn.model_selection import train_test_split
-from sklearn import preprocessing
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.svm import SVR
 
-data = pd.read_csv("data/data.csv", sep=';')
+from nn import create_model
+from scores import cross_val, predict, fit_and_predict
+from util import load_data, transform_data, stratified_train_test_split, random_train_test_split
+from pprint import pprint
 
-print(data.dtypes)
+data = load_data()
+X_train, X_test, y_train, y_test = stratified_train_test_split(data)
 
-'''for column in data.columns:
-    if data[column].dtype != np.float64 or data[column].dtype != np.int64:
-        data[column] = data[column].astype('category')
-        data[column] = data[column].cat.codes'''
+X_train = transform_data(X_train)
+X_test = transform_data(X_test)
 
-classifieres_names = ['kNN',
-                      'SVM',
-                      # 
-                      ]
-classifieres = [
-    KNeighborsClassifier(5),
-    SVC(gamma='auto'),
-    # https://machinelearningmastery.com/tutorial-first-neural-network-python-keras/
-    # prosty artykuł jak dodać sieć neuronową
+kNN_params_grid = [
+    {
+        'weights': ['uniform', 'distance'],
+        'n_neighbors': [1, 3, 5, 7, 10, 15, 20],
+        'metric': ['euclidean', 'manhattan']
+    }
+]
+#
+grid_search = GridSearchCV(KNeighborsRegressor(), kNN_params_grid, cv=5, scoring='neg_mean_squared_error', return_train_score=True)
+grid_search.fit(X_train, y_train)
+#pprint(grid_search.cv_results_)
+print(grid_search.best_params_)
+print(grid_search.best_score_)
+
+print(predict(grid_search.best_estimator_, X_test, y_test))
+
+svr_params_grid = [
+    {
+        'C': [0.25, 0.5, 1, 2, 3, 4, 5],
+        'degree': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    }
 ]
 
+grid_search = GridSearchCV(SVR(kernel='poly'), svr_params_grid, cv=5, scoring='neg_mean_squared_error', return_train_score=True)
+grid_search.fit(X_train, y_train)
+print(grid_search.best_params_)
+print(grid_search.best_score_)
 
-target = data['Ugięcia']
-data_features = data.drop(['Ugięcia'], axis='columns')
+print(predict(grid_search.best_estimator_, X_test, y_test))
 
-print(target)
+hidden_activations = ['sigmoid', 'relu', 'tanh']
+hidden_layer_neurons = [1, 2, 5, 10, 15, 20, 25, 50, 100, 200, 500, 1000, 2500, 5000, 10000]
+# hidden_layer_neurons = [10, 100, 500, 1000, 2500, 5000]
+loss_functions = ['mean_squared_error', 'mean_absolute_error']
 
-max_abs_scaler = MaxAbsScaler()
+best = 1
 
-data_features_scaled = max_abs_scaler.fit_transform(data_features)
-#target_scaled = max_abs_scaler.transform(target)
+for hidden_activation in hidden_activations:
+    for hid_layer_neurons in hidden_layer_neurons:
+        for loss in loss_functions:
+            nn = create_model(X_train.shape[1], hidden_layer_neurons=hid_layer_neurons, hidden_activation=hidden_activation, loss=loss)
+            nn.fit(X_train, y_train, epochs=25, verbose=0)
+            mse = predict(nn, X_test, y_test)
+            if mse < best:
+                best = mse
+                best_nn = hidden_activation + ", " + str(hid_layer_neurons) + ", " + loss
+            print(hidden_activation, ", ", hid_layer_neurons, ", ", loss, ": ", mse)
 
-data_features_scaled = pd.DataFrame(
-    data_features_scaled, columns=data_features.columns)
-
-
-
-
-data_train_X, data_test_X, data_train_Y, data_test_Y = train_test_split(
-    data_features_scaled, target, test_size=0.2, random_state=71)
-
-
-for i in range(0, len(classifieres)):
-    print(classifieres_names[i])
-    classifieres[i].fit(data_train_X, data_train_Y)
-    predictions = classifieres[i].predict(data_test_X)
-    acc = accuracy_score(data_test_Y, predictions)
+print(best_nn, ",", best)
