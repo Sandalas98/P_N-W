@@ -51,7 +51,9 @@ loss_functions = ['mean_squared_error', 'mean_absolute_error']
 best = 1
 
 for hidden_activation in hidden_activations:
+    print('hidden activation: ' + hidden_activation)
     for hid_layer_neurons in hidden_layer_neurons:
+        print('\t' + 'hidden layer neurons: ' + str(hid_layer_neurons))
         for loss in loss_functions:
             nn = create_model(X_train.shape[1], hidden_layer_neurons=hid_layer_neurons, hidden_activation=hidden_activation, loss=loss)
             nn.fit(X_train, y_train, epochs=25, verbose=0)
@@ -59,6 +61,7 @@ for hidden_activation in hidden_activations:
             if mse < best:
                 best = mse
                 best_nn = hidden_activation + ", " + str(hid_layer_neurons) + ", " + loss
-            print(hidden_activation, ", ", hid_layer_neurons, ", ", loss, ": ", mse)
+            print('\t\tloss function: '+ loss)
+            print('\t\t\t MSE: ' + str(mse))
 
 print(best_nn, ",", best)
