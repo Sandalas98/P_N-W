@@ -24,10 +24,10 @@ kNN_params_grid = [
 grid_search = GridSearchCV(KNeighborsRegressor(), kNN_params_grid, cv=5, scoring='neg_mean_squared_error', return_train_score=True)
 grid_search.fit(X_train, y_train)
 #pprint(grid_search.cv_results_)
-print(grid_search.best_params_)
-print(grid_search.best_score_)
+print("best params for KNN: ", grid_search.best_params_)
+print("score: ", grid_search.best_score_)
 
-print(predict(grid_search.best_estimator_, X_test, y_test))
+print("result on test set: ", predict(grid_search.best_estimator_, X_test, y_test))
 
 svr_params_grid = [
     {
@@ -38,10 +38,10 @@ svr_params_grid = [
 
 grid_search = GridSearchCV(SVR(kernel='poly'), svr_params_grid, cv=5, scoring='neg_mean_squared_error', return_train_score=True)
 grid_search.fit(X_train, y_train)
-print(grid_search.best_params_)
-print(grid_search.best_score_)
+print("best params for SVR: ", grid_search.best_params_)
+print("score: ", grid_search.best_score_)
 
-print(predict(grid_search.best_estimator_, X_test, y_test))
+print("result on test set: ", predict(grid_search.best_estimator_, X_test, y_test))
 
 hidden_activations = ['sigmoid', 'relu', 'tanh']
 hidden_layer_neurons = [1, 2, 5, 10, 15, 20, 25, 50, 100, 200, 500, 1000, 2500, 5000, 10000]
@@ -61,8 +61,10 @@ for hidden_activation in hidden_activations:
             if mse < best:
                 best = mse
                 best_nn = hidden_activation + ", " + str(hid_layer_neurons) + ", " + loss
-            print('\t\tloss function: '+ loss)
+                best_nn_model = nn
+            print('\t\tloss function: ' + loss)
             print('\t\t\t MSE: ' + str(mse))
 
 print('BEST PARAMETERS:')
-print(best_nn, ",", best)
+print(best_nn + ", score: ", best)
+print("result on test set: ", predict(best_nn_model, X_test, y_test))
