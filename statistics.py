@@ -13,8 +13,8 @@ def perform_ttest(scores, headers, alfa=.05):
     w_statistic_table = np.concatenate((names_column, w_statistic), axis=1)
     w_statistic_table = tabulate(w_statistic_table, headers, floatfmt=".2f")
     p_value_table = np.concatenate((names_column, p_value), axis=1)
-    p_value_table = tabulate(p_value_table, headers, floatfmt=".2f")
-    print("t-statistic:\n", w_statistic_table, "\n\np-value:\n", p_value_table)
+    p_value_table = tabulate(p_value_table, headers, floatfmt=".5f")
+    print("w-statistic:\n", w_statistic_table, "\n\np-value:\n", p_value_table)
 
     advantage = np.zeros((len(scores), len(scores)))
     advantage[w_statistic > 0] = 1

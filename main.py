@@ -51,6 +51,11 @@ best_SVM = {
     "degree": -1
 }
 
+# wyjaśnć kryterium neg_mean_absolute_error
+# dlaczego jest ujemne????
+# Podac wartośc kryterium
+
+
 for weight in kNN_weights:
     for neighbor in kNN_neighbors:
         for metric in kNN_metric:
@@ -115,5 +120,5 @@ print(best_kNN)
 print(best_SVM)
 print(best_NN)
 
-# Test t-Studenta:
+# Testy:
 perform_ttest([list(best_kNN["samples"]), list(best_SVM["samples"]), list(best_NN["samples"])], ["kNN", "SVM", "NN"])
